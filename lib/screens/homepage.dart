@@ -11,6 +11,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   addmethods addObj = addmethods();
+  TimeOfDay selectedTime1 = TimeOfDay.now();
+  TimeOfDay selectedTime2 = TimeOfDay.now();
   File SampleImage;
   String dept;
   String instructor;
@@ -149,6 +151,41 @@ class _HomePageState extends State<HomePage> {
                     this.topic = value;
                   },
                 ),
+                SizedBox(height: 10,),
+                Row(
+                  children: <Widget>
+                  [
+                    Text('Start\nTime'),
+                    SizedBox(width: 5,),
+                    OutlineButton(
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                      onPressed: selectTime1,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Icon(Icons.access_time),
+                          SizedBox(width: 4),
+                          Text(selectedTime1.format(context)),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 50,),
+                    Text('End\nTime'),
+                    SizedBox(width: 5,),
+                    OutlineButton(
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                      onPressed:selectTime2,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Icon(Icons.access_time),
+                          SizedBox(width: 4),
+                          Text(selectedTime2.format(context)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
                 SizedBox(height: 5.0,),
                 FlatButton(
                   color: Colors.green,
@@ -172,5 +209,27 @@ class _HomePageState extends State<HomePage> {
         ],
       )
       );
+  }
+  Future<void> selectTime1() async {
+    final time = await showTimePicker(
+      context: context,
+      initialTime: selectedTime1,
+    );
+    if (time != null) {
+      setState(() {
+        selectedTime1 = time;
+      });
+    }
+  }
+  Future<void> selectTime2() async {
+    final time = await showTimePicker(
+      context: context,
+      initialTime: selectedTime2,
+    );
+    if (time != null) {
+      setState(() {
+        selectedTime2 = time;
+      });
+    }
   }
 }
