@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:asapadminapp/services/crudmethods.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
@@ -21,197 +22,222 @@ class _HomePageState extends State<HomePage> {
   String mno;
   String sno;
   String url;
-  Future<bool> dialogTrigger(BuildContext context) async
-  {
+  DateTime startingDate;
+
+  Future<bool> dialogTrigger(BuildContext context) async {
     return showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (BuildContext context)
-        {
+        builder: (BuildContext context) {
           return AlertDialog(
-            title:Text('Job done',style: TextStyle(fontSize: 15.0),) ,
+            title: Text(
+              'Job done',
+              style: TextStyle(fontSize: 15.0),
+            ),
             content: Text('Added'),
-            actions: <Widget>
-            [
+            actions: <Widget>[
               FlatButton(
                 child: Text('Alright'),
                 textColor: Colors.blue,
-                onPressed: (){
+                onPressed: () {
                   Navigator.of(context).pop();
                 },
               )
             ],
           );
-        }
-    );
+        });
   }
-  Future getImage() async{
-    var temp = await ImagePicker.pickImage(source:ImageSource.gallery);
+
+  Future getImage() async {
+    var temp = await ImagePicker.pickImage(source: ImageSource.gallery);
     setState(() {
       SampleImage = temp;
     });
     uploadimg();
   }
-  void uploadimg() async
-  {
-    final StorageReference StorageRef = FirebaseStorage.instance.ref().child('Classimgs');
-    var timekey =DateTime.now();
-    final StorageUploadTask task = StorageRef.child(timekey.toString()+".jpg").putFile(SampleImage);
+
+  void uploadimg() async {
+    final StorageReference StorageRef =
+        FirebaseStorage.instance.ref().child('Classimgs');
+    var timekey = DateTime.now();
+    final StorageUploadTask task =
+        StorageRef.child(timekey.toString() + ".jpg").putFile(SampleImage);
     var imgurl = await (await task.onComplete).ref.getDownloadURL();
     url = imgurl.toString();
   }
+
+  DateTime convertingDateTime(_convertTime) {
+    final now = new DateTime.now();
+    return DateTime(
+        now.year, now.month, now.day, _convertTime.hour, _convertTime.minute);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Admin app'),
-        centerTitle: true,
-      ),
-      body:ListView(
-        children: <Widget>
-        [
-          Container(
-            padding: EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>
-              [
-                Container(
-                  height: 300,
-                  width: 200,
-                  color: Colors.grey,
-                  child:SampleImage==null?Center(child: Text('Select an Image')):Image.file(SampleImage,height: 300,width: 200,),
-                ),
-                SizedBox(height: 5.0,),
-                FlatButton(
-                  color: Colors.green,
-                  child: Text('choose an image'),
-                  onPressed: () async {
-                    getImage();
-                  },
-                ),
-                TextField(
-                  decoration: InputDecoration(
-                      hintText:'Enter department'
+        appBar: AppBar(
+          title: Text('Admin app'),
+          centerTitle: true,
+        ),
+        body: ListView(
+          children: <Widget>[
+            Container(
+              padding: EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    height: 300,
+                    width: 200,
+                    color: Colors.grey,
+                    child: SampleImage == null
+                        ? Center(child: Text('Select an Image'))
+                        : Image.file(
+                            SampleImage,
+                            height: 300,
+                            width: 200,
+                          ),
                   ),
-                  onChanged: (value)
-                  {
-                    this.dept = value;
-                  },
-                ),
-                SizedBox(height: 5.0,),
-                TextField(
-                  decoration: InputDecoration(
-                      hintText:'instructor name'
+                  SizedBox(
+                    height: 5.0,
                   ),
-                  onChanged: (value)
-                  {
-                    this.instructor = value;
-                  },
-                ),
-                SizedBox(height: 5.0,),
-                TextField(
-                  decoration: InputDecoration(
-                      hintText:'Module no'
+                  FlatButton(
+                    color: Colors.green,
+                    child: Text('choose an image'),
+                    onPressed: () async {
+                      getImage();
+                    },
                   ),
-                  onChanged: (value)
-                  {
-                    this.mno = value;
-                  },
-                ),
-                SizedBox(height: 5.0,),
-                TextField(
-                  decoration: InputDecoration(
-                      hintText:'Semister'
+                  TextField(
+                    decoration: InputDecoration(hintText: 'Enter department'),
+                    onChanged: (value) {
+                      this.dept = value;
+                    },
                   ),
-                  onChanged: (value)
-                  {
-                    this.sno = value;
-
-                  },
-                ),
-                SizedBox(height: 5.0,),
-                TextField(
-                  decoration: InputDecoration(
-                      hintText:'Subject'
+                  SizedBox(
+                    height: 5.0,
                   ),
-                  onChanged: (value)
-                  {
-                    this.subject = value;
-
-                  },
-                ),
-                SizedBox(height: 5.0,),
-                TextField(
-                  decoration: InputDecoration(
-                      hintText:'Topic'
+                  TextField(
+                    decoration: InputDecoration(hintText: 'instructor name'),
+                    onChanged: (value) {
+                      this.instructor = value;
+                    },
                   ),
-                  onChanged: (value)
-                  {
-                    this.topic = value;
-                  },
-                ),
-                SizedBox(height: 10,),
-                Row(
-                  children: <Widget>
-                  [
-                    Text('Start\nTime'),
-                    SizedBox(width: 5,),
-                    OutlineButton(
-                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                      onPressed: selectTime1,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Icon(Icons.access_time),
-                          SizedBox(width: 4),
-                          Text(selectedTime1.format(context)),
-                        ],
+                  SizedBox(
+                    height: 5.0,
+                  ),
+                  TextField(
+                    decoration: InputDecoration(hintText: 'Module no'),
+                    onChanged: (value) {
+                      this.mno = value;
+                    },
+                  ),
+                  SizedBox(
+                    height: 5.0,
+                  ),
+                  TextField(
+                    decoration: InputDecoration(hintText: 'Semister'),
+                    onChanged: (value) {
+                      this.sno = value;
+                    },
+                  ),
+                  SizedBox(
+                    height: 5.0,
+                  ),
+                  TextField(
+                    decoration: InputDecoration(hintText: 'Subject'),
+                    onChanged: (value) {
+                      this.subject = value;
+                    },
+                  ),
+                  SizedBox(
+                    height: 5.0,
+                  ),
+                  TextField(
+                    decoration: InputDecoration(hintText: 'Topic'),
+                    onChanged: (value) {
+                      this.topic = value;
+                    },
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    children: <Widget>[
+                      Text('Start\nTime'),
+                      SizedBox(
+                        width: 5,
                       ),
-                    ),
-                    SizedBox(width: 50,),
-                    Text('End\nTime'),
-                    SizedBox(width: 5,),
-                    OutlineButton(
-                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                      onPressed:selectTime2,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Icon(Icons.access_time),
-                          SizedBox(width: 4),
-                          Text(selectedTime2.format(context)),
-                        ],
+                      OutlineButton(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8, horizontal: 12),
+                        onPressed: selectTime1,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Icon(Icons.access_time),
+                            SizedBox(width: 4),
+                            Text(selectedTime1.format(context)),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 5.0,),
-                FlatButton(
-                  color: Colors.green,
-                  onPressed: ()
-                  {
-                    addObj.addData(
-                        { 'imgurl':this.url,
-                          'dept':this.dept,
-                          'instructor':this.instructor,
-                          'mno':this.mno,
-                          'sno':this.sno,
-                          'subject':this.subject,
-                          'topic':this.topic}).then((result) {dialogTrigger(context);});
-                  },
-                  child:Text('Upload data') ,
-                )
-              ],
+                      SizedBox(
+                        width: 50,
+                      ),
+                      Text('End\nTime'),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      OutlineButton(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8, horizontal: 12),
+                        onPressed: selectTime2,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Icon(Icons.access_time),
+                            SizedBox(width: 4),
+                            Text(selectedTime2.format(context)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 5.0,
+                  ),
+                  FlatButton(
+                    color: Colors.green,
+                    onPressed: () {
+                      DateTime _startingTime =
+                          convertingDateTime(selectedTime1);
+                      DateTime _endingTime = convertingDateTime(selectedTime2);
+
+                      addObj.addData({
+                        'imgurl': this.url,
+                        'dept': this.dept,
+                        'instructor': this.instructor,
+                        'mno': this.mno,
+                        'sno': this.sno,
+                        'subject': this.subject,
+                        'startingDate': _startingTime,
+                        'endingDate': _endingTime,
+                        'topic': this.topic
+                      }).then((result) {
+                        dialogTrigger(context);
+                      });
+                    },
+                    child: Text('Upload data'),
+                  )
+                ],
+              ),
             ),
-          ),
-
-        ],
-      )
-      );
+          ],
+        ));
   }
+
   Future<void> selectTime1() async {
-    final time = await showTimePicker(
+    final TimeOfDay time = await showTimePicker(
       context: context,
       initialTime: selectedTime1,
     );
@@ -221,6 +247,7 @@ class _HomePageState extends State<HomePage> {
       });
     }
   }
+
   Future<void> selectTime2() async {
     final time = await showTimePicker(
       context: context,
